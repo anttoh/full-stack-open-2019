@@ -1,8 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { useState } from "react";
 
-console.log(React.version)
 const Header = ({ course }) => {
   return (
     <div>
