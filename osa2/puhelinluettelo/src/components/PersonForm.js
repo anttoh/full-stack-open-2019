@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import personService from "../services/persons";
 
-const PersonForm = ({ persons, setPersons }) => {
+const PersonForm = ({ persons, setPersons, createMessage }) => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
 
@@ -13,13 +13,22 @@ const PersonForm = ({ persons, setPersons }) => {
     const person = persons.find(p => p.name === newName);
     const changedPerson = { ...person, number: newNumber };
 
-    personService.update(changedPerson).then(returnedPerson => {
-      setPersons(
-        persons.map(person =>
-          person.id !== changedPerson.id ? person : returnedPerson
-        )
-      );
-    });
+    personService
+      .update(changedPerson)
+      .then(returnedPerson => {
+        setPersons(
+          persons.map(person =>
+            person.id !== changedPerson.id ? person : returnedPerson
+          )
+        );
+        createMessage(`Updated ${person.name}`, "blue");
+      })
+      .catch(() => {
+        createMessage(
+          `Information of ${person.name} has already been removed from server`,
+          "darkRed"
+        );
+      });
   };
 
   const addPerson = () => {
@@ -29,6 +38,7 @@ const PersonForm = ({ persons, setPersons }) => {
     };
     personService.create(personObject).then(returnedPerson => {
       setPersons(persons.concat(returnedPerson));
+      createMessage(`Added ${returnedPerson.name}`, "green");
     });
   };
   const addOrUpdatePerson = event => {

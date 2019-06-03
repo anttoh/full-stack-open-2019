@@ -2,16 +2,28 @@ import React from "react";
 import Person from "./Person";
 import personService from "../services/persons";
 
-const Persons = ({ persons, setPersons, filter }) => {
+const Persons = ({ persons, setPersons, filter, createMessage }) => {
   const filteredPersons = () => {
     return persons.filter(person => person.name.toLowerCase().includes(filter));
   };
 
   const deletePerson = person => {
-    if (window.confirm("Delete " + person.name))
-      personService.remove(person.id).then(() => {
-        setPersons(persons.filter(p => p.id !== person.id));
-      });
+    if (window.confirm("Delete " + person.name)) {
+      personService
+        .remove(person.id)
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== person.id));
+          createMessage(`Deleted ${person.name}`, "red");
+        })
+        .catch(() => {
+          createMessage(
+            `Information of ${
+              person.name
+            } has already been removed from server`,
+            "darkRed"
+          );
+        });
+    }
   };
 
   const rows = () =>
