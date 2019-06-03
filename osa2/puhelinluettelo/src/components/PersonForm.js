@@ -1,31 +1,52 @@
-import React from "react";
+import React, { useState } from "react";
+import personService from "../services/persons";
 
-const PersonForm = ({
-  persons,
-  newName,
-  newNumber,
-  setPersons,
-  setNewName,
-  setNewNumber
-}) => {
+const PersonForm = ({ persons, setPersons }) => {
+  const [newName, setNewName] = useState("");
+  const [newNumber, setNewNumber] = useState("");
+
   const isNameTaken = () => {
     return persons.filter(person => person.name === newName).length !== 0;
   };
 
-  const addPerson = event => {
+  const updateNumber = () => {
+    const person = persons.find(p => p.name === newName);
+    const changedPerson = { ...person, number: newNumber };
+
+    personService.update(changedPerson).then(returnedPerson => {
+      setPersons(
+        persons.map(person =>
+          person.id !== changedPerson.id ? person : returnedPerson
+        )
+      );
+    });
+  };
+
+  const addPerson = () => {
+    const personObject = {
+      name: newName,
+      number: newNumber
+    };
+    personService.create(personObject).then(returnedPerson => {
+      setPersons(persons.concat(returnedPerson));
+    });
+  };
+  const addOrUpdatePerson = event => {
     event.preventDefault();
     if (isNameTaken()) {
-      window.alert(`${newName} is already added to phonebook`);
+      if (
+        window.confirm(
+          newName +
+            " is already added to phonebook, replace old number with a new one?"
+        )
+      ) {
+        updateNumber();
+      }
     } else {
-      const personObject = {
-        name: newName,
-        number: newNumber
-      };
-
-      setPersons(persons.concat(personObject));
-      setNewName("");
-      setNewNumber("");
+      addPerson();
     }
+    setNewName("");
+    setNewNumber("");
   };
 
   const handleNameChange = event => {
@@ -36,7 +57,7 @@ const PersonForm = ({
     setNewNumber(event.target.value);
   };
   return (
-    <form onSubmit={addPerson}>
+    <form onSubmit={addOrUpdatePerson}>
       <div>
         name: <input value={newName} onChange={handleNameChange} />
       </div>

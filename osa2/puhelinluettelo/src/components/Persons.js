@@ -1,14 +1,25 @@
 import React from "react";
 import Person from "./Person";
+import personService from "../services/persons";
 
-const Persons = ({ persons, filter }) => {
+const Persons = ({ persons, setPersons, filter }) => {
   const filteredPersons = () => {
     return persons.filter(person => person.name.toLowerCase().includes(filter));
   };
 
+  const deletePerson = person => {
+    if (window.confirm("Delete " + person.name))
+      personService.remove(person.id).then(() => {
+        setPersons(persons.filter(p => p.id !== person.id));
+      });
+  };
+
   const rows = () =>
     filteredPersons().map(person => (
-      <Person key={person.name} name={person.name} number={person.number} />
+      <div key={person.id}>
+        <Person key={person.id} name={person.name} number={person.number} />
+        <button onClick={() => deletePerson(person)}>delete</button>
+      </div>
     ));
 
   return <div>{rows()}</div>;
