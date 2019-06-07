@@ -36,10 +36,15 @@ const PersonForm = ({ persons, setPersons, createMessage }) => {
       name: newName,
       number: newNumber
     };
-    personService.create(personObject).then(returnedPerson => {
-      setPersons(persons.concat(returnedPerson));
-      createMessage(`Added ${returnedPerson.name}`, "green");
-    });
+    personService
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson));
+        createMessage(`Added ${returnedPerson.name}`, "green");
+      })
+      .catch(err => {
+        createMessage(JSON.stringify(err.response.data), "darkRed");
+      });
   };
   const addOrUpdatePerson = event => {
     event.preventDefault();
